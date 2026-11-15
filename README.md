@@ -1,17 +1,19 @@
-# validade_zero
+# Validade Zero — MVP
 
-A new Flutter project.
+Aplicativo móvel desenvolvido para o controle de validade de insumos perecíveis e aplicação visual do método PEPS (Primeiro a Entrar, Primeiro a Sair), alinhado ao **ODS 12 (Consumo e Produção Responsáveis)**.
 
-## Getting Started
+## Arquitetura e Tecnologias
+- **Padrão Arquitetural:** MVC (Model-View-Controller)
+- **Framework Mobile:** Flutter (Dart)
+- **Gerenciamento de Estado:** Provider
+- **Backend / Persistência:** Firebase Authentication & Cloud Firestore (NoSQL)
 
-This project is a starting point for a Flutter application.
+## Estrutura de Pastas (`lib/`)
+- `models/`: Entidades de domínio (`LotePerecivel`) e serialização NoSQL.
+- `controllers/`: Regras de negócio, cálculo de prazos e controle de estado (`Provider`).
+- `views/`: Interfaces gráficas acessíveis (Login, Cadastro e Dashboard PEPS) com redundância visual (cores + ícones + textos) para acessibilidade.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Como Executar Localmente
+1. Instale as dependências: `flutter pub get`
+2. Execute os testes unitários: `flutter test`
+3. Inicie a aplicação: `flutter run`
