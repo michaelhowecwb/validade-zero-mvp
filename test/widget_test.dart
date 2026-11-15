@@ -1,30 +1,44 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
-
-import 'package:validade_zero/main.dart';
+import 'package:validade_zero/controllers/lote_controller.dart';
+import 'package:validade_zero/models/lote_perecivel.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('Testes Unitários - LoteController (Regras de Negócio PEPS)', () {
+    test('Deve validar que data de vencimento não pode ser anterior à abertura', () {
+      final controller = LoteController();
+      final abertura = DateTime(2026, 11, 15);
+      final vencimentoInvalido = DateTime(2026, 11, 14);
+      final vencimentoValido = DateTime(2026, 11, 18);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      expect(controller.validarDatas(abertura, vencimentoInvalido), isFalse);
+      expect(controller.validarDatas(abertura, vencimentoValido), isTrue);
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    test('Deve realizar apagamento lógico (Soft Delete) mantendo rastreabilidade', () {
+      final controller = LoteController();
+      final totalInicial = controller.lotesAtivos.length;
+      final idPrimeiroLote = controller.lotesAtivos.first.id;
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      controller.cancelarLotePorErro(idPrimeiroLote);
+
+      expect(controller.lotesAtivos.length, equals(totalInicial - 1));
+    });
+
+    test('Deve adicionar novo lote perecível e ordenar por vencimento mais próximo (PEPS)', () {
+      final controller = LoteController();
+      final novoLote = LotePerecivel(
+        id: '99',
+        nomeProduto: 'Chantilly Fresco',
+        codigoLote: 'LOTE-99Z',
+        dataAbertura: DateTime.now(),
+        dataVencimento: DateTime.now().subtract(const Duration(days: 1)),
+        statusConsumo: 'ativo',
+        uidBaristaRegistro: 'barista.cabral@thecoffee.com.br',
+      );
+
+      controller.adicionarLote(novoLote);
+
+      expect(controller.lotesAtivos.first.id, equals('99'));
+    });
   });
 }
