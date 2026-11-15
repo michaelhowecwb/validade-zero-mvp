@@ -1,0 +1,24 @@
+name: Monitoramento Pós-Lançamento (Uptime & Health Check)
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  health_check:
+    name: Verificação de Disponibilidade HTTP (Status UP/DOWN)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Testar Endpoint Público de Produção
+        run: |
+          URL="https://michaelhowecwb.github.io/validade-zero-mvp/"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L "$URL")
+          echo "Endpoint verificado: $URL"
+          echo "Código HTTP retornado: $STATUS"
+          if [ "$STATUS" -eq 200 ]; then
+            echo "STATUS: UP - Aplicação online e operacional sem falhas."
+          else
+            echo "STATUS: DOWN - Falha crítica detectada (HTTP $STATUS)."
+            exit 1
+          fi
