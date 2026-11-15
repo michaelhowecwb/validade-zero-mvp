@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../controllers/lote_controller.dart';
 import '../models/lote_perecivel.dart';
 import 'cadastro_lote_view.dart';
+import 'login_view.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
@@ -21,30 +22,53 @@ class DashboardView extends StatelessWidget {
             width: double.infinity,
             color: azulPrimario,
             padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black87,
-                  elevation: 3,
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: Colors.white, width: 1.5),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginView()),
+                    );
+                  },
+                  icon: const Icon(Icons.logout, size: 18),
+                  label: const Text(
+                    'Sair',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                   ),
                 ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const CadastroLoteView()),
-                  );
-                },
-                icon: const Icon(Icons.add, size: 20),
-                label: const Text(
-                  'Novo Insumo',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black87,
+                    elevation: 3,
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const CadastroLoteView()),
+                    );
+                  },
+                  icon: const Icon(Icons.add, size: 20),
+                  label: const Text(
+                    'Novo Insumo',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
           Expanded(
@@ -64,7 +88,24 @@ class DashboardView extends StatelessWidget {
                           color: azulPrimario,
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          ChoiceChip(
+                            label: const Text('Todos os Lotes'),
+                            selected: !controller.apenasCriticos,
+                            onSelected: (_) => controller.alternarFiltroCriticos(false),
+                          ),
+                          const SizedBox(width: 10),
+                          ChoiceChip(
+                            label: const Text('Vence Hoje (Críticos)'),
+                            selected: controller.apenasCriticos,
+                            selectedColor: const Color(0xFFFF004D).withValues(alpha: 0.2),
+                            onSelected: (_) => controller.alternarFiltroCriticos(true),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
                       Expanded(
                         child: ListView.separated(
                           itemCount: lotes.length,
@@ -146,7 +187,7 @@ class DashboardView extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Lote: ${lote.codigoLote}',
+                  'Lote: ${lote.codigoLote}  •  Qtd: ${lote.quantidadeUnidades} un.',
                   style: TextStyle(fontSize: 14, color: corTexto),
                 ),
                 const SizedBox(height: 2),

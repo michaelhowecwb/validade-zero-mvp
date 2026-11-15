@@ -13,6 +13,7 @@ class CadastroLoteView extends StatefulWidget {
 class _CadastroLoteViewState extends State<CadastroLoteView> {
   final _nomeController = TextEditingController();
   final _loteController = TextEditingController();
+  final _quantidadeController = TextEditingController(text: '1');
   DateTime _dataAbertura = DateTime.now();
   DateTime? _dataVencimento;
 
@@ -44,10 +45,11 @@ class _CadastroLoteViewState extends State<CadastroLoteView> {
     final controller = Provider.of<LoteController>(context, listen: false);
     final nomeLimpo = controller.sanitizarTexto(_nomeController.text);
     final loteLimpo = controller.sanitizarTexto(_loteController.text).toUpperCase();
+    final qtd = int.tryParse(_quantidadeController.text.trim()) ?? 0;
 
-    if (nomeLimpo.isEmpty || loteLimpo.isEmpty || _dataVencimento == null) {
+    if (nomeLimpo.isEmpty || loteLimpo.isEmpty || _dataVencimento == null || qtd <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Preencha todos os campos obrigatórios.')),
+        const SnackBar(content: Text('Preencha todos os campos obrigatórios corretamente.')),
       );
       return;
     }
@@ -65,6 +67,7 @@ class _CadastroLoteViewState extends State<CadastroLoteView> {
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       nomeProduto: nomeLimpo,
       codigoLote: loteLimpo,
+      quantidadeUnidades: qtd,
       dataAbertura: _dataAbertura,
       dataVencimento: _dataVencimento!,
       statusConsumo: 'ativo',
@@ -122,7 +125,7 @@ class _CadastroLoteViewState extends State<CadastroLoteView> {
                           label: const Text('Voltar', style: TextStyle(fontWeight: FontWeight.w600)),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
                       const Text('Nome do Insumo', style: TextStyle(fontWeight: FontWeight.w600)),
                       const SizedBox(height: 6),
                       TextField(
@@ -141,26 +144,65 @@ class _CadastroLoteViewState extends State<CadastroLoteView> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 18),
-                      const Text('Lote', style: TextStyle(fontWeight: FontWeight.w600)),
-                      const SizedBox(height: 6),
-                      TextField(
-                        controller: _loteController,
-                        decoration: InputDecoration(
-                          hintText: 'Insira o lote do insumo',
-                          filled: true,
-                          fillColor: const Color(0xFFF2F4F7),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: azulPrimario, width: 1.5),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Lote', style: TextStyle(fontWeight: FontWeight.w600)),
+                                const SizedBox(height: 6),
+                                TextField(
+                                  controller: _loteController,
+                                  decoration: InputDecoration(
+                                    hintText: 'Ex: LOTE-12A',
+                                    filled: true,
+                                    fillColor: const Color(0xFFF2F4F7),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(color: azulPrimario, width: 1.5),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(color: azulPrimario, width: 2),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: azulPrimario, width: 2),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Unidades', style: TextStyle(fontWeight: FontWeight.w600)),
+                                const SizedBox(height: 6),
+                                TextField(
+                                  controller: _quantidadeController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                    hintText: '1',
+                                    filled: true,
+                                    fillColor: const Color(0xFFF2F4F7),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(color: azulPrimario, width: 1.5),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(color: azulPrimario, width: 2),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 16),
                       const Text('Data de Abertura', style: TextStyle(fontWeight: FontWeight.w600)),
                       const SizedBox(height: 6),
                       InkWell(
@@ -181,7 +223,7 @@ class _CadastroLoteViewState extends State<CadastroLoteView> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 16),
                       const Text('Data de Vencimento', style: TextStyle(fontWeight: FontWeight.w600)),
                       const SizedBox(height: 6),
                       InkWell(
@@ -209,7 +251,7 @@ class _CadastroLoteViewState extends State<CadastroLoteView> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 36),
+                      const SizedBox(height: 32),
                       Center(
                         child: SizedBox(
                           width: 210,
