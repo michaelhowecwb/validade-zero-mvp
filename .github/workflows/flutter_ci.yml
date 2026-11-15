@@ -1,0 +1,30 @@
+name: Validade Zero - CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build_and_test:
+    name: Build, Análise Estática e Testes Automatizados
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Ambiente Flutter (Stable)
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Instalar Dependências (pub get)
+        run: flutter pub get
+
+      - name: Análise Estática do Código (lib e test)
+        run: flutter analyze lib test
+
+      - name: Executar Suíte de Testes Unitários e de Integração
+        run: flutter test --coverage
