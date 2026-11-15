@@ -70,6 +70,11 @@ void main() {
   });
 
   testWidgets('Teste de Integração - Fluxo de Login, Filtro e Cadastro de Insumo', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(
       ChangeNotifierProvider(
         create: (_) => LoteController(),
