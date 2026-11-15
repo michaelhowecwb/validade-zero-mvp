@@ -63,12 +63,15 @@ class _LoginViewState extends State<LoginView> {
                         ],
                       ),
                       const SizedBox(width: 12),
-                      const Text(
-                        'Validade Zero',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: azulPrimario,
+                      const Flexible(
+                        child: Text(
+                          'Validade Zero',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: azulPrimario,
+                          ),
                         ),
                       ),
                     ],
