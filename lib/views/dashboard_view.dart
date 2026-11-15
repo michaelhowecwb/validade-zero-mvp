@@ -9,134 +9,178 @@ class DashboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.watch<LoteController>();
+    final controller = Provider.of<LoteController>(context);
     final lotes = controller.lotesAtivos;
+    const azulPrimario = Color(0xFF0A4D8C);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Olá, Barista.'),
-        backgroundColor: const Color(0xFF0A4D8C),
-        foregroundColor: Colors.white,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: const Color(0xFF0A4D8C),
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            color: azulPrimario,
+            padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black87,
+                  elevation: 3,
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CadastroLoteView()),
+                  );
+                },
+                icon: const Icon(Icons.add, size: 20),
+                label: const Text(
+                  'Novo Insumo',
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                ),
               ),
-              icon: const Icon(Icons.add),
-              label: const Text('Novo Insumo', style: TextStyle(fontWeight: FontWeight.bold)),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const CadastroLoteView()),
-                );
-              },
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 500),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Olá, Barista.',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: azulPrimario,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Expanded(
+                        child: ListView.separated(
+                          itemCount: lotes.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 16),
+                          itemBuilder: (context, index) {
+                            final lote = lotes[index];
+                            final dias = controller.calcularDiasRestantes(lote.dataVencimento);
+                            return _buildCardLote(context, controller, lote, dias);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: lotes.length,
-        itemBuilder: (context, index) {
-          final lote = lotes[index];
-          final diasRestantes = controller.calcularDiasRestantes(lote.dataVencimento);
-          return _buildLoteCard(context, controller, lote, diasRestantes);
-        },
-      ),
     );
   }
 
-  Widget _buildLoteCard(
+  Widget _buildCardLote(
     BuildContext context,
     LoteController controller,
     LotePerecivel lote,
-    int diasRestantes,
+    int dias,
   ) {
-    Color cardColor;
-    Color textColor;
-    IconData statusIcon;
-    String statusText;
+    Color corFundo;
+    Color corTexto;
+    IconData icone;
+    String statusTexto;
 
-    if (diasRestantes <= 0) {
-      cardColor = const Color(0xFFE5094D);
-      textColor = Colors.white;
-      statusIcon = Icons.warning_rounded;
-      statusText = diasRestantes == 0
-          ? 'Atenção, Vence Hoje!'
-          : 'Vencido há ${diasRestantes.abs()} dia(s)!';
-    } else if (diasRestantes <= 2) {
-      cardColor = const Color(0xFFFFF168);
-      textColor = Colors.black;
-      statusIcon = Icons.hourglass_bottom_rounded;
-      statusText = 'Vence em $diasRestantes dia(s)';
+    if (dias <= 0) {
+      corFundo = const Color(0xFFFF004D);
+      corTexto = Colors.white;
+      icone = Icons.warning_rounded;
+      statusTexto = 'Atenção, Vence Hoje!';
+    } else if (dias <= 3) {
+      corFundo = const Color(0xFFFFF566);
+      corTexto = Colors.black;
+      icone = Icons.hourglass_bottom_rounded;
+      statusTexto = 'Vence em $dias dia(s)';
     } else {
-      cardColor = const Color(0xFF5CF6B2);
-      textColor = Colors.black;
-      statusIcon = Icons.check_circle_rounded;
-      statusText = 'Vence em $diasRestantes dias';
+      corFundo = const Color(0xFF66FFB2);
+      corTexto = Colors.black;
+      icone = Icons.check_circle_rounded;
+      statusTexto = 'Vence em $dias dias';
     }
 
-    return Card(
-      color: cardColor,
-      margin: const EdgeInsets.only(bottom: 14),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(statusIcon, size: 42, color: textColor),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    lote.nomeProduto,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: textColor,
-                    ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      decoration: BoxDecoration(
+        color: corFundo,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.12),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Icon(icone, size: 38, color: corTexto),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  lote.nomeProduto,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: corTexto,
                   ),
-                  Text(
-                    'Lote: ${lote.codigoLote}',
-                    style: TextStyle(fontSize: 15, color: textColor),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Lote: ${lote.codigoLote}',
+                  style: TextStyle(fontSize: 14, color: corTexto),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  statusTexto,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: corTexto,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    statusText,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: textColor,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-            IconButton(
-              iconSize: 32,
-              tooltip: 'Cancelar lote por erro de registro',
-              icon: Icon(Icons.delete_outline, color: textColor),
-              onPressed: () {
-                controller.cancelarLotePorErro(lote.id);
-                ScaffoldMessenger.of(context).clearSnackBars();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Lote "${lote.nomeProduto}" removido.'),
-                    action: SnackBarAction(
-                      label: 'DESFAZER',
-                      onPressed: () => controller.restaurarLoteCancelado(lote.id),
-                    ),
+          ),
+          IconButton(
+            tooltip: 'Registrar consumo ou descarte',
+            icon: Icon(Icons.delete_outline, color: corTexto, size: 28),
+            onPressed: () {
+              controller.marcarLoteComoConsumido(lote.id);
+              ScaffoldMessenger.of(context).clearSnackBars();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Baixa registrada para "${lote.nomeProduto}".'),
+                  action: SnackBarAction(
+                    label: 'DESFAZER',
+                    onPressed: () {
+                      controller.restaurarLoteCancelado(lote.id);
+                    },
                   ),
-                );
-              },
-            ),
-          ],
-        ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

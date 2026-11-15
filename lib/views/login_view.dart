@@ -28,6 +28,8 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
+    const azulPrimario = Color(0xFF0A4D8C);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -35,67 +37,119 @@ class _LoginViewState extends State<LoginView> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
+              constraints: const BoxConstraints(maxWidth: 400),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(Icons.access_time_filled, size: 64, color: Color(0xFF0A4D8C)),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Validade Zero',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0A4D8C),
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          const Icon(Icons.access_time, size: 42, color: azulPrimario),
+                          Positioned(
+                            right: -4,
+                            bottom: -2,
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.warning_rounded, size: 20, color: azulPrimario),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Validade Zero',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: azulPrimario,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   const Text(
                     'Acesse o sistema da sua unidade.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: Colors.black87),
+                    style: TextStyle(fontSize: 15, color: Colors.black87),
                   ),
-                  const SizedBox(height: 32),
-                  const Text('E-mail institucional', style: TextStyle(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 40),
+                  const Text(
+                    'E-mail institucional',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                  ),
                   const SizedBox(height: 6),
                   TextField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      hintText: 'ex: barista.cabral@thecoffee.com.br',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      hintText: 'Insira aqui seu e-mail',
+                      filled: true,
+                      fillColor: const Color(0xFFF2F4F7),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: azulPrimario, width: 1.5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: azulPrimario, width: 2),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  const Text('Senha', style: TextStyle(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Senha',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                  ),
                   const SizedBox(height: 6),
                   TextField(
                     controller: _senhaController,
                     obscureText: true,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Insira sua senha',
-                      border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: const Color(0xFFF2F4F7),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: azulPrimario, width: 1.5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: azulPrimario, width: 2),
+                      ),
                     ),
                   ),
                   if (_erroMensagem != null) ...[
                     const SizedBox(height: 12),
                     Text(
                       _erroMensagem!,
+                      textAlign: TextAlign.center,
                       style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
                     ),
                   ],
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    height: 52,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0A4D8C),
-                        foregroundColor: Colors.white,
+                  const SizedBox(height: 36),
+                  Center(
+                    child: SizedBox(
+                      width: 180,
+                      height: 48,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: azulPrimario,
+                          foregroundColor: Colors.white,
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                        ),
+                        onPressed: _autenticar,
+                        child: const Text('Entrar', style: TextStyle(fontSize: 17)),
                       ),
-                      onPressed: _autenticar,
-                      child: const Text('Entrar', style: TextStyle(fontSize: 18)),
                     ),
                   ),
                 ],
