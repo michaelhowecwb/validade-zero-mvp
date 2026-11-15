@@ -40,6 +40,10 @@ class LoteController extends ChangeNotifier {
     return ativos;
   }
 
+  String sanitizarTexto(String entrada) {
+    return entrada.replaceAll(RegExp(r'[<>"\;/]'), '').trim();
+  }
+
   int calcularDiasRestantes(DateTime dataVencimento) {
     final hoje = DateTime.now();
     final dataAtualSemHora = DateTime(hoje.year, hoje.month, hoje.day);
@@ -63,6 +67,14 @@ class LoteController extends ChangeNotifier {
   }
 
   void cancelarLotePorErro(String id) {
+    _alterarStatusLote(id, 'cancelado_por_erro');
+  }
+
+  void restaurarLoteCancelado(String id) {
+    _alterarStatusLote(id, 'ativo');
+  }
+
+  void _alterarStatusLote(String id, String novoStatus) {
     final index = _lotesAtivos.indexWhere((lote) => lote.id == id);
     if (index != -1) {
       final loteAntigo = _lotesAtivos[index];
@@ -72,7 +84,7 @@ class LoteController extends ChangeNotifier {
         codigoLote: loteAntigo.codigoLote,
         dataAbertura: loteAntigo.dataAbertura,
         dataVencimento: loteAntigo.dataVencimento,
-        statusConsumo: 'cancelado_por_erro',
+        statusConsumo: novoStatus,
         uidBaristaRegistro: loteAntigo.uidBaristaRegistro,
       );
       notifyListeners();

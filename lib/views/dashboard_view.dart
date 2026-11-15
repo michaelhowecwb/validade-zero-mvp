@@ -123,6 +123,16 @@ class DashboardView extends StatelessWidget {
               icon: Icon(Icons.delete_outline, color: textColor),
               onPressed: () {
                 controller.cancelarLotePorErro(lote.id);
+                ScaffoldMessenger.of(context).clearSnackBars();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Lote "${lote.nomeProduto}" removido.'),
+                    action: SnackBarAction(
+                      label: 'DESFAZER',
+                      onPressed: () => controller.restaurarLoteCancelado(lote.id),
+                    ),
+                  ),
+                );
               },
             ),
           ],

@@ -1,107 +1,156 @@
 import 'package:flutter/material.dart';
-import 'dashboard_view.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../controllers/lote_controller.dart';
+import '../models/lote_perecivel.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class CadastroLoteView extends StatefulWidget {
+  const CadastroLoteView({super.key});
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<CadastroLoteView> createState() => _CadastroLoteViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
-  final _emailController = TextEditingController();
-  final _senhaController = TextEditingController();
-  String? _erroMensagem;
+class _CadastroLoteViewState extends State<CadastroLoteView> {
+  final _nomeController = TextEditingController();
+  final _loteController = TextEditingController();
+  DateTime _dataAbertura = DateTime.now();
+  DateTime? _dataVencimento;
+  String? _erroValidacao;
 
-  void _autenticar() {
-    if (_emailController.text.trim().isEmpty || _senhaController.text.isEmpty) {
+  final DateFormat _formatter = DateFormat('dd/MM/yyyy');
+
+  Future<void> _selecionarData(BuildContext context, bool isAbertura) async {
+    final selecionada = await showDatePicker(
+      context: context,
+      initialDate: isAbertura ? _dataAbertura : (_dataVencimento ?? DateTime.now()),
+      firstDate: DateTime(2025),
+      lastDate: DateTime(2030),
+    );
+    if (selecionada != null) {
       setState(() {
-        _erroMensagem = 'Preencha o e-mail institucional e a senha.';
+        if (isAbertura) {
+          _dataAbertura = selecionada;
+        } else {
+          _dataVencimento = selecionada;
+        }
+      });
+    }
+  }
+
+  void _salvarRegistro() {
+    final controller = context.read<LoteController>();
+    final nomeLimpo = controller.sanitizarTexto(_nomeController.text);
+    final loteLimpo = controller.sanitizarTexto(_loteController.text);
+
+    if (nomeLimpo.isEmpty || loteLimpo.isEmpty || _dataVencimento == null) {
+      setState(() {
+        _erroValidacao = 'Todos os campos são obrigatórios.';
       });
       return;
     }
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const DashboardView()),
+
+    if (!controller.validarDatas(_dataAbertura, _dataVencimento!)) {
+      setState(() {
+        _erroValidacao = 'A data de vencimento não pode ser anterior à abertura.';
+      });
+      return;
+    }
+
+    final novoLote = LotePerecivel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      nomeProduto: nomeLimpo,
+      codigoLote: loteLimpo.toUpperCase(),
+      dataAbertura: _dataAbertura,
+      dataVencimento: _dataVencimento!,
+      statusConsumo: 'ativo',
+      uidBaristaRegistro: 'barista.cabral@thecoffee.com.br',
     );
+
+    controller.adicionarLote(novoLote);
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Icon(Icons.access_time_filled, size: 64, color: Color(0xFF0A4D8C)),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Validade Zero',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0A4D8C),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Acesse o sistema da sua unidade.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: Colors.black87),
-                  ),
-                  const SizedBox(height: 32),
-                  const Text('E-mail institucional', style: TextStyle(fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 6),
-                  TextField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      hintText: 'ex: barista.cabral@thecoffee.com.br',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text('Senha', style: TextStyle(fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 6),
-                  TextField(
-                    controller: _senhaController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      hintText: 'Insira sua senha',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  if (_erroMensagem != null) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      _erroMensagem!,
-                      style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    height: 52,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0A4D8C),
-                        foregroundColor: Colors.white,
-                      ),
-                      onPressed: _autenticar,
-                      child: const Text('Entrar', style: TextStyle(fontSize: 18)),
-                    ),
-                  ),
-                ],
+      appBar: AppBar(
+        title: const Text('Registrar Novo Insumo'),
+        backgroundColor: const Color(0xFF0A4D8C),
+        foregroundColor: Colors.white,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text('Nome do Insumo', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 6),
+            TextField(
+              controller: _nomeController,
+              decoration: const InputDecoration(
+                hintText: 'Insira o nome do insumo',
+                border: OutlineInputBorder(),
               ),
             ),
-          ),
+            const SizedBox(height: 16),
+            const Text('Lote', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 6),
+            TextField(
+              controller: _loteController,
+              decoration: const InputDecoration(
+                hintText: 'Insira o lote do insumo',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text('Data de Abertura', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 6),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.calendar_today),
+              label: Text(_formatter.format(_dataAbertura)),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(52),
+                alignment: Alignment.centerLeft,
+              ),
+              onPressed: () => _selecionarData(context, true),
+            ),
+            const SizedBox(height: 16),
+            const Text('Data de Vencimento', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 6),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.calendar_today),
+              label: Text(
+                _dataVencimento == null
+                    ? 'Selecione a data de vencimento'
+                    : _formatter.format(_dataVencimento!),
+              ),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(52),
+                alignment: Alignment.centerLeft,
+              ),
+              onPressed: () => _selecionarData(context, false),
+            ),
+            if (_erroValidacao != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                _erroValidacao!,
+                style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              ),
+            ],
+            const SizedBox(height: 28),
+            SizedBox(
+              height: 54,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0A4D8C),
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: _salvarRegistro,
+                child: const Text('Salvar Registro', style: TextStyle(fontSize: 18)),
+              ),
+            ),
+          ],
         ),
       ),
     );
