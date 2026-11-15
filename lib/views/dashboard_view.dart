@@ -165,7 +165,7 @@ class DashboardView extends StatelessWidget {
             tooltip: 'Registrar consumo ou descarte',
             icon: Icon(Icons.delete_outline, color: corTexto, size: 28),
             onPressed: () {
-              controller.marcarLoteComoConsumido(lote.id);
+              controller.cancelarLotePorErro(lote.id);
               ScaffoldMessenger.of(context).clearSnackBars();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
