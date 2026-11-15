@@ -89,14 +89,15 @@ class DashboardView extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Row(
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 8,
                         children: [
                           ChoiceChip(
                             label: const Text('Todos os Lotes'),
                             selected: !controller.apenasCriticos,
                             onSelected: (_) => controller.alternarFiltroCriticos(false),
                           ),
-                          const SizedBox(width: 10),
                           ChoiceChip(
                             label: const Text('Vence Hoje (Críticos)'),
                             selected: controller.apenasCriticos,

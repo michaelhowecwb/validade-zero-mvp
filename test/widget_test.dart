@@ -70,6 +70,11 @@ void main() {
   });
 
   testWidgets('Teste de Integração - Fluxo de Login, Filtro e Cadastro de Insumo', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(
       ChangeNotifierProvider(
         create: (_) => LoteController(),
@@ -83,20 +88,14 @@ void main() {
 
     await tester.enterText(find.byType(TextField).at(0), 'barista.cabral@thecoffee.com.br');
     await tester.enterText(find.byType(TextField).at(1), 'Senha123');
-
-    final botaoEntrar = find.widgetWithText(ElevatedButton, 'Entrar');
-    await tester.ensureVisible(botaoEntrar);
-    await tester.tap(botaoEntrar);
+    await tester.tap(find.text('Entrar'));
     await tester.pumpAndSettle();
 
     expect(find.text('Olá, Barista.'), findsOneWidget);
     expect(find.text('Leite de Aveia'), findsOneWidget);
 
-    final chipCriticos = find.widgetWithText(ChoiceChip, 'Vence Hoje (Críticos)');
-    await tester.ensureVisible(chipCriticos);
-    await tester.tap(chipCriticos);
+    await tester.tap(find.text('Vence Hoje (Críticos)'));
     await tester.pumpAndSettle();
-
     expect(find.text('Leite Integral'), findsNothing);
   });
 }
