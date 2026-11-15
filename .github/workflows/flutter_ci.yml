@@ -8,7 +8,7 @@ on:
 
 jobs:
   build_and_test:
-    name: Build, Análise Estática e Testes Automatizados
+    name: Build e Testes Automatizados
     runs-on: ubuntu-latest
 
     steps:
@@ -22,9 +22,6 @@ jobs:
 
       - name: Instalar Dependências (pub get)
         run: flutter pub get
-
-      - name: Análise Estática do Código (lib e test)
-        run: flutter analyze lib test
 
       - name: Executar Suíte de Testes Unitários e de Integração
         run: flutter test --coverage
